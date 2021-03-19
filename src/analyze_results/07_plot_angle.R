@@ -65,6 +65,10 @@ df$bin    <- classify_results(df$Y, break.upper = 2*pi/9, break.lower = pi/9)
 in.out.loc$label <- sprintf("%s, %s", in.out.loc$city.name, in.out.loc$state)
 in.out.loc$label[!in.out.loc$city.name %in% ex_cities] <- ""
 
+# Adjust for colorbar
+in.out.loc$vector.angle[in.out.loc$vector.angle < 0] <- 0
+in.out.loc$vector.angle[in.out.loc$vector.angle > pi/3] <- pi/3
+
 # 3. PLOT ----------------------------------------------------------------------
 plot_obj <- ggplot() +
             geom_tile(data = df,
@@ -90,30 +94,32 @@ plot_obj <- ggplot() +
                        shape = 1, 
                        size = 1.5) +
             # Label Cities - text
-            geom_text_repel(data = in.out.loc,
-                            aes(x = logETP,
-                                y = precipitation,
-                                label = label),
-                            color = "darkred",
-                            inherit.aes = FALSE,
-                            box.padding = 0.4,
-                            point.padding = 0.4,
-                            segment.color = "darkred",
-                            size=1.5,
-                            family="Segoe UI Semibold") +
+            # geom_text_repel(data = in.out.loc,
+            #                 aes(x = logETP,
+            #                     y = precipitation,
+            #                     label = label),
+            #                 color = "darkred",
+            #                 inherit.aes = FALSE,
+            #                 box.padding = 0.4,
+            #                 point.padding = 0.4,
+            #                 segment.color = "darkred",
+            #                 size=1.5, #2.5,
+            #                 family="Segoe UI Semibold") +
             labs(x = "PET:P", y = "Annual Precipitation (mm)") +
             scale_x_continuous(expand = c(0,0),
                                breaks = log10(c(1, 10)),
                                labels = c("1", "10"),
                                minor_breaks = log10(c(0.1,1,2,3,4,5,6,7,8,9,10,20))) +
             scale_y_continuous(expand = c(0,0)) +
-            scale_color_distiller(palette = "YlGnBu",
+            scale_color_distiller(name = "",
+                                  palette = "YlGnBu",
                                   direction = 1,
-                                  limits = c(-pi/9, 4*pi/9),
-                                  breaks = c(0, pi/9, 2*pi/9, pi/3),
-                                  labels = c("0", expression(pi/9), 
-                                             expression(2*pi/9), expression(pi/3)),
-                                  name = "") +
+                                  breaks = seq(0, pi/3, pi/9),
+                                  limits = c(0, pi/3),
+                                  labels = c(expression(""<=0), 
+                                             expression(pi/9), 
+                                             expression(2*pi/9), 
+                                             expression("">=pi/3))) +
             scale_fill_brewer(name = "",
                               palette = "YlGnBu",
                               direction = -1,

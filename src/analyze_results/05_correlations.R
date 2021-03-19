@@ -110,13 +110,18 @@ plot_obj <- ggplot(melted.corr) +
             labs(x = "", y = "") +
             guides(fill = guide_colorbar(title.vjust = 0.8)) +
             theme_bw() + 
-            theme(text = element_text(family = "Segoe UI Semilight", 
+            theme(text = element_text(family = "Segoe UI Semibold", 
                                       size = text.size),
                   axis.text.x = element_text(angle = 90, hjust=0, vjust = 0.5),
                   legend.position = "bottom",
                   legend.margin = margin(0,0,0,0))
 
 ggsave("results/figures/correlation_matrix.png",
+       plot = plot_obj,
+       width = 8,
+       height = 8,
+       units = "in")
+ggsave("results/figures/correlation_matrix.svg",
        plot = plot_obj,
        width = 8,
        height = 8,

@@ -75,7 +75,7 @@ df$PC1 <- df$X1*plsr.model$runoff.precip$Yloadings[1,1]
 df$PC2 <- df$X2*plsr.model$runoff.precip$Yloadings[1,2]
 ##HIJAICKING!!!
 df     <- expand.grid(list(PC1 = seq(-2.5, 2, 0.05),
-                        PC2 = seq(-1.5, 2, 0.05)))
+                        PC2 = seq(-1, 2, 0.05)))
 ####
 df$Y   <- df$PC1+df$PC2+plsr.model$runoff.precip$Ymeans
 
@@ -97,7 +97,9 @@ parflow$Y   <- in.out.loc.scaled$runoff.precip*flux.sd + flux.mean
 parflow$bin <- classify_results(parflow$Y, break.upper = 0.25, break.lower = 0.15)
 parflow$label <- sprintf("%s, %s", in.out.loc$city.name, in.out.loc$state)
 parflow$label[!in.out.loc$city.name %in% ex_cities] <- ""
-
+parflow <- cbind(parflow, 
+                 select(in.out.loc, c("city.index","corr.PtoET0.30day", 
+                                      "precipitation", "ET0toP", "wet.fraction")))
 
 # Get variable loadings
 var.loads <- plsr.model$runoff.precip$loadings[,1:2]
@@ -140,17 +142,17 @@ plot_obj <- ggplot() +
                        color = "darkred",
                        shape = 1, 
                        size = 1.5) +
-            geom_text_repel(data = parflow,
-                            aes(x = PC1,
-                                y = PC2,
-                                label = label),
-                            color = "darkred",
-                            inherit.aes = FALSE,
-                            box.padding = 0.4,
-                            point.padding = 0.4,
-                            segment.color = "darkred",
-                            size=1.5,
-                            family="Segoe UI Semibold") +
+            # geom_text_repel(data = parflow,
+            #                 aes(x = PC1,
+            #                     y = PC2,
+            #                     label = label),
+            #                 color = "darkred",
+            #                 inherit.aes = FALSE,
+            #                 box.padding = 0.4,
+            #                 point.padding = 0.4,
+            #                 segment.color = "darkred",
+            #                 size= 1.5, #2.5,
+            #                 family="Segoe UI Semibold") +
             scale_y_continuous(expand = c(0,0)) +
             scale_x_continuous(expand = c(0,0)) +
             scale_color_distiller(palette = "Blues",
@@ -164,6 +166,7 @@ plot_obj <- ggplot() +
                               palette = "Blues",
                               direction = -1,
                               labels = c("> 25%", "15% - 25%", "< 15%")) +
+            labs(x = "Component 1", y = "Component 2") +
             theme_bw() +
             theme(text = element_text(size=text.size, 
                                       family="Segoe UI Semilight"),
